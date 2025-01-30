@@ -2,9 +2,11 @@
 
 import React, { useEffect, useState } from "react";
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 function Body() {
   const [users, setUsers] = useState([]);
   const [formData, setFormData] = useState({ id: "", firstname: "", lastname: "", age: "" });
+  const navigate = useNavigate();
   // // Load users from localStorage when the component mounts
   // useEffect(() => {
   //   const storedUsers = JSON.parse(localStorage.getItem("users"));
@@ -23,7 +25,7 @@ function Body() {
   // ==================== server
   useEffect(() => {
     // Fetch users data from the Node.js backend
-    axios.get('https://lzkd7k-5000.csb.app/users')
+    axios.get('https://lzkd7k-5002.csb.app/users')
       .then((response) => {
         setUsers(response.data);  // Update the state with the fetched users
       })
@@ -58,7 +60,7 @@ function Body() {
       
       // =================  server ===============
 
-      axios.post('https://lzkd7k-5000.csb.app/users', formData)
+      axios.post('https://lzkd7k-5002.csb.app/users', formData)
         .then((response) => {
           if (response.data.id) {
           setUsers([...users, response.data]);  // Add the new user to the list
@@ -75,18 +77,36 @@ function Body() {
     }
   };
 
-  const handleEdit = (user) => {
-    setFormData(user);
+  const handleEdit = (userid) => {
+    navigate(`/edit/${userid}`)
+    // setFormData(user);
   };
 
+  // const handleDelete = (id) => {
+  //   setUsers(users.filter((user) => user.id !== id));
+  // };
+
+
+  const createUser = (e) => {
+    navigate('/create');
+  }
+
   const handleDelete = (id) => {
-    setUsers(users.filter((user) => user.id !== id));
+    axios.delete(`https://lzkd7k-5002.csb.app/users/${id}`)
+      .then(response => {
+        console.log(response.data.message); // Log the success message
+        // Filter out the deleted user from the state
+        setUsers(users.filter(user => user.id !== id));
+      })
+      .catch(error => {
+        console.error("There was an error deleting the user!", error);
+      });
   };
 
   return (
     <div className="container mt-5">
       {/* <h2 className="text-center mb-4">User Management</h2> */}
-      <form onSubmit={handleFormSubmit} className="mb-4 border border-3 p-5">
+      {/* <form onSubmit={handleFormSubmit} className="mb-4 border border-3 p-5">
         <div className="row row-cols-2 row-cols-md-3 mb-3">
           <div className="col">
             <label htmlFor="name" className="form-label">First Name</label>
@@ -129,7 +149,10 @@ function Body() {
         <button type="submit" className="btn btn-primary">
           {formData.id ? "Update" : "Add"} User
         </button>
-      </form>
+      </form> */}
+      <div className="col-12 text-end">
+      <button type="button" className="btn btn-primary text-end" onClick={createUser}>Create</button>
+      </div>
       <h3>User List</h3>
       <div className="border border-3 p-5 py-3 px-4">
         <table className="table table-bordered align-middle mb-0">
@@ -152,7 +175,7 @@ function Body() {
                 <td>{user.age}</td>
                 <td className="text-center"><button
                   className="btn btn-warning btn-sm me-2"
-                  onClick={() => handleEdit(user)}
+                  onClick={() => handleEdit(user.id)}
                 >
                   Edit
                 </button>

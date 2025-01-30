@@ -10,7 +10,6 @@ function Login({ login }) {
 
   const handleLogin = (e) => {
     e.preventDefault();
-
     // Simple authentication check (replace with real authentication)
     if (username === 'user' && password === 'password') {
       login(); // Set authentication state

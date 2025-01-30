@@ -1,28 +1,33 @@
 // HomePage.js
 import React, { useEffect, useState } from "react";
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
+// import Header from "./Components/";
+
 function CreateList() {
+  
     const [users, setUsers] = useState([]);
   const [formData, setFormData] = useState({ id: "", firstname: "", lastname: "", age: "" });
-
+  const navigate = useNavigate();
   // Load users from localStorage when the component mounts
-  useEffect(() => {
-    const storedUsers = JSON.parse(localStorage.getItem("users"));
-    if (storedUsers) {
-      setUsers(storedUsers);
-    }
-  }, []);
+  // useEffect(() => {
+  //   const storedUsers = JSON.parse(localStorage.getItem("users"));
+  //   if (storedUsers) {
+  //     setUsers(storedUsers);
+  //   }
+  // }, []);
 
   // Save users to localStorage whenever the users state changes
-  useEffect(() => {
-    if (users.length > 0) {
-      localStorage.setItem("users", JSON.stringify(users));
-    }
-  }, [users]);
+  // useEffect(() => {
+  //   if (users.length > 0) {
+  //     localStorage.setItem("users", JSON.stringify(users));
+  //   }
+  // }, [users]);
 
   // ==================== server
   // useEffect(() => {
   //   // Fetch users data from the Node.js backend
-  //   axios.get('https://lzkd7k-5000.csb.app/users')
+  //   axios.get('https://lzkd7k-5002.csb.app/users')
   //     .then((response) => {
   //       setUsers(response.data);  // Update the state with the fetched users
   //     })
@@ -38,45 +43,52 @@ function CreateList() {
     console.log(formData);
   };
 
+  
+  const BackToList = () => {
+    navigate('/home')
+  }
 
   const handleFormSubmit = (e) => {
     e.preventDefault();
     if (formData.firstname && formData.lastname) {
-      if (formData.id) {
-        setUsers(
-          users.map((user) =>
-            user.id === formData.id
-              ? { ...user, firstname: formData.firstname, lastname: formData.lastname, age: formData.age }
-              : user
-          )
-        );
-      } else {
-        setUsers([...users,{ id: Date.now(), firstname: formData.firstname, lastname: formData.lastname, age: formData.age },]);
-      }
-      setFormData({ id: "", firstname: "", lastname: "", age: "" });
+      // if (formData.id) {
+      //   setUsers(
+      //     users.map((user) =>
+      //       user.id === formData.id
+      //         ? { ...user, firstname: formData.firstname, lastname: formData.lastname, age: formData.age }
+      //         : user
+      //     )
+      //   );
+      // } else {
+      //   setUsers([...users,{ id: Date.now(), firstname: formData.firstname, lastname: formData.lastname, age: formData.age },]);
+      //   navigate('/home');
+      // }
+      // setFormData({ id: "", firstname: "", lastname: "", age: "" });
       
       // =================  server ===============
 
-      // axios.post('https://lzkd7k-5000.csb.app/users', formData)
-      //   .then((response) => {
-      //     if (response.data.id) {
-      //     setUsers([...users, response.data]);  // Add the new user to the list
-      //     setFormData({ firstname: '', lastname: '', age: '' });  // Reset the form
-      //     }
-      //   })
-      //   .catch((error) => {
-      //     console.error('There was an error adding the user!', error);
-      //   });
+      axios.post('https://lzkd7k-5002.csb.app/users', formData)
+        .then((response) => {
+          if (response.data.id) {
+          setUsers([...users, response.data]);  // Add the new user to the list
+          setFormData({ firstname: '', lastname: '', age: '' });  // Reset the form
+          }
+        })
+        .catch((error) => {
+          console.error('There was an error adding the user!', error);
+        });
+        navigate('/home');
       // ===============================================
 
     } else {
       alert("Please fill in both fields");
     }
+
   };
   return (
-    <div>
-     <h1>Edit List</h1>
-    
+    <div className="p-7">
+      {/* <Header/> */}
+     <h3>Create User</h3>
      <form onSubmit={handleFormSubmit} className="mb-4 border border-3 p-5">
         <div className="row row-cols-2 row-cols-md-3 mb-3">
           <div className="col">
@@ -119,6 +131,7 @@ function CreateList() {
         <button type="submit" className="btn btn-primary">
           {formData.id ? "Update" : "Add"} User
         </button>
+        <button type="button" className="btn btn-secondary ms-3" onClick={() => BackToList()}>Back</button>
       </form>
     </div>
   );

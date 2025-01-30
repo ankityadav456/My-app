@@ -217,6 +217,7 @@ import './index.css'; // Add Tailwind styles to your project
 import LoginPage from './Components/Login';
 import HomePage from './Components/Home';
 import Create from './Components/CreateList';
+import Edit from './Components/EditList';
 
 function App() {
   // Check for authentication status from localStorage when the app loads
@@ -266,6 +267,12 @@ function App() {
             path="/create"
             element={isAuthenticated ? <Create logout={logOut} /> : <LoginPage login={logIn} />}
           />
+
+          <Route
+             path="/edit/:id"
+            element={isAuthenticated ? <Edit logout={logOut} /> : <LoginPage login={logIn} />}
+          />
+
 
 
           {/* Redirect to Home if already authenticated */}
