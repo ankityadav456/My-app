@@ -27,7 +27,7 @@ function CreateList() {
   // ==================== server
   // useEffect(() => {
   //   // Fetch users data from the Node.js backend
-  //   axios.get('https://lzkd7k-5002.csb.app/users')
+  //   axios.get('https://lzkd7k-8080.csb.app/users')
   //     .then((response) => {
   //       setUsers(response.data);  // Update the state with the fetched users
   //     })
@@ -67,7 +67,7 @@ function CreateList() {
       
       // =================  server ===============
 
-      axios.post('https://lzkd7k-5002.csb.app/users', formData)
+      axios.post('https://lzkd7k-8080.csb.app/users', formData)
         .then((response) => {
           if (response.data.id) {
           setUsers([...users, response.data]);  // Add the new user to the list

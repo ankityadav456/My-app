@@ -1,7 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const app = express();
-const port = 5002;  // Backend will run on port 5000
+const port = 8080;  // Backend will run on port 8080
 
 // Use CORS to allow cross-origin requests from React (which usually runs on a different port, like 3000)
 app.use(cors());
@@ -11,6 +11,8 @@ const users = [
   { id: 1, firstname: 'John', lastname: 'Doe', age: 25 },
   { id: 2, firstname: 'Jane', lastname: 'Doe', age: 28 },
   { id: 3, firstname: 'mark', lastname: 'mark', age: 30 },
+
+  
 ];
 
 // Simple route for GET request

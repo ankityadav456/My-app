@@ -12,7 +12,7 @@ function EditList(prop) {
   // ==================== server
   useEffect(() => {
     // Fetch users data from the Node.js backend
-    axios.get(`https://lzkd7k-5002.csb.app/users/${id}`)
+    axios.get(`https://lzkd7k-8080.csb.app/users/${id}`)
       .then((response) => {
         setFormData(response.data);  // Update the state with the fetched users
         setLoading(false);
@@ -56,7 +56,7 @@ function EditList(prop) {
 
       // =================  server ===============
 
-      axios.patch(`https://lzkd7k-5002.csb.app/users/${id}`, formData)
+      axios.patch(`https://lzkd7k-8080.csb.app/users/${id}`, formData)
         .then((response) => {
           console.log("User updated:", response.data);
           navigate('/home'); // Redirect to home page after updating
@@ -75,7 +75,7 @@ function EditList(prop) {
   return (
     <div className="p-7">
       {/* <Header/> */}
-      <h3>Create User</h3>
+      <h3>Edit User</h3>
       <form onSubmit={handleFormSubmit} className="mb-4 border border-3 p-5">
         <div className="row row-cols-2 row-cols-md-3 mb-3">
           <div className="col">

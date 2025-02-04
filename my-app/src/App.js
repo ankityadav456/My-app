@@ -216,6 +216,7 @@ import './index.css'; // Add Tailwind styles to your project
 // Import Components
 import LoginPage from './Components/Login';
 import HomePage from './Components/Home';
+import Layout from './Components/Layout'; // Import the Layout component
 import Create from './Components/CreateList';
 import Edit from './Components/EditList';
 
@@ -253,35 +254,19 @@ function App() {
 
   return (
     <Router>
-      <div>
-        <Routes>
-          <Route path="/login" element={<LoginPage login={logIn} />} />
+      <Routes>
+        {/* Define a route for the layout with the header and footer */}
+        <Route element={<Layout logout={logOut} />}>
+          {/* Define your protected routes within the Layout */}
+          <Route path="/" element={isAuthenticated ? <HomePage logout={logOut} /> : <LoginPage login={logIn} />} />
+          <Route path="/home" element={isAuthenticated ? <HomePage logout={logOut} /> : <LoginPage login={logIn} />} />
+          <Route path="/create" element={isAuthenticated ? <Create logout={logOut} /> : <LoginPage login={logIn} />} />
+          <Route path="/edit/:id" element={isAuthenticated ? <Edit logout={logOut} /> : <LoginPage login={logIn} />} />
+        </Route>
 
-          {/* Protect the Home route, only accessible if authenticated */}
-          <Route
-            path="/home"
-            element={isAuthenticated ? <HomePage logout={logOut} /> : <LoginPage login={logIn} />}
-          />
-
-          <Route
-            path="/create"
-            element={isAuthenticated ? <Create logout={logOut} /> : <LoginPage login={logIn} />}
-          />
-
-          <Route
-             path="/edit/:id"
-            element={isAuthenticated ? <Edit logout={logOut} /> : <LoginPage login={logIn} />}
-          />
-
-
-
-          {/* Redirect to Home if already authenticated */}
-          <Route
-            path="/"
-            element={isAuthenticated ? <HomePage logout={logOut} /> : <LoginPage login={logIn} />}
-          />
-        </Routes>
-      </div>
+        {/* Public route */}    
+        <Route path="/login" element={<LoginPage login={logIn} />} />
+      </Routes>
     </Router>
   );
 }

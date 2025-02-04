@@ -4,9 +4,10 @@ import React, { useEffect, useState } from "react";
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 function Body() {
+  const [loading, setLoading] = useState(true);
   const [users, setUsers] = useState([]);
-  const [formData, setFormData] = useState({ id: "", firstname: "", lastname: "", age: "" });
   const navigate = useNavigate();
+  // ============================================ local storage
   // // Load users from localStorage when the component mounts
   // useEffect(() => {
   //   const storedUsers = JSON.parse(localStorage.getItem("users"));
@@ -21,78 +22,33 @@ function Body() {
   //     localStorage.setItem("users", JSON.stringify(users));
   //   }
   // }, [users]);
-
-  // ==================== server
+  // ==========================================================
+  // ==================== server ===========================
   useEffect(() => {
     // Fetch users data from the Node.js backend
-    axios.get('https://lzkd7k-5002.csb.app/users')
+    axios.get('https://lzkd7k-8080.csb.app/users')
       .then((response) => {
+        // console.log(response);
         setUsers(response.data);  // Update the state with the fetched users
+        setLoading(false);
       })
       .catch((error) => {
         console.error('There was an error fetching the users!', error);
+        setLoading(false);
       });
   }, []);  // Empty array ensures this runs only once when the component mounts
-  // ============================================
-
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
-    console.log(formData);
-  };
-
-
-  const handleFormSubmit = (e) => {
-    e.preventDefault();
-    if (formData.firstname && formData.lastname) {
-      // if (formData.id) {
-      //   setUsers(
-      //     users.map((user) =>
-      //       user.id === formData.id
-      //         ? { ...user, firstname: formData.firstname, lastname: formData.lastname, age: formData.age }
-      //         : user
-      //     )
-      //   );
-      // } else {
-      //   setUsers([...users,{ id: Date.now(), firstname: formData.firstname, lastname: formData.lastname, age: formData.age },]);
-      // }
-      // setFormData({ id: "", firstname: "", lastname: "", age: "" });
-      
-      // =================  server ===============
-
-      axios.post('https://lzkd7k-5002.csb.app/users', formData)
-        .then((response) => {
-          if (response.data.id) {
-          setUsers([...users, response.data]);  // Add the new user to the list
-          setFormData({ firstname: '', lastname: '', age: '' });  // Reset the form
-          }
-        })
-        .catch((error) => {
-          console.error('There was an error adding the user!', error);
-        });
-      // ===============================================
-
-    } else {
-      alert("Please fill in both fields");
-    }
-  };
+  // ===========================================
 
   const handleEdit = (userid) => {
     navigate(`/edit/${userid}`)
-    // setFormData(user);
   };
-
-  // const handleDelete = (id) => {
-  //   setUsers(users.filter((user) => user.id !== id));
-  // };
-
 
   const createUser = (e) => {
     navigate('/create');
   }
 
   const handleDelete = (id) => {
-    axios.delete(`https://lzkd7k-5002.csb.app/users/${id}`)
+    axios.delete(`https://lzkd7k-8080.csb.app/users/${id}`)
       .then(response => {
         console.log(response.data.message); // Log the success message
         // Filter out the deleted user from the state
@@ -102,56 +58,12 @@ function Body() {
         console.error("There was an error deleting the user!", error);
       });
   };
-
+  if (loading) return <p>Loading...</p>;
   return (
     <div className="container mt-5">
-      {/* <h2 className="text-center mb-4">User Management</h2> */}
-      {/* <form onSubmit={handleFormSubmit} className="mb-4 border border-3 p-5">
-        <div className="row row-cols-2 row-cols-md-3 mb-3">
-          <div className="col">
-            <label htmlFor="name" className="form-label">First Name</label>
-            <input
-              type="text"
-              name="firstname"
-              value={formData.firstname}
-              onChange={handleInputChange}
-              className="form-control"
-              id="name"
-              placeholder="Enter First Name"
-            />
-          </div>
-          <div className="col mb-3">
-            <label htmlFor="email" className="form-label">Last name</label>
-            <input
-              type="text"
-              name="lastname"
-              value={formData.lastname}
-              onChange={handleInputChange}
-              className="form-control"
-              id="email"
-              placeholder="Enter Last Name"
-            />
-          </div>
-          <div className="col mb-3">
-            <label htmlFor="email" className="form-label">Age</label>
-            <input
-              type="number"
-              name="age"
-              min="0"
-              value={formData.age}
-              onChange={handleInputChange}
-              className="form-control"
-              id="age"
-              placeholder="Enter Age"
-            />
-          </div>
-        </div>
-        <button type="submit" className="btn btn-primary">
-          {formData.id ? "Update" : "Add"} User
-        </button>
-      </form> */}
+      <h2 className="text-center mb-4">User Management</h2>
       <div className="col-12 text-end">
-      <button type="button" className="btn btn-primary text-end" onClick={createUser}>Create</button>
+        <button type="button" className="btn btn-primary text-end" onClick={createUser}>Create</button>
       </div>
       <h3>User List</h3>
       <div className="border border-3 p-5 py-3 px-4">
@@ -166,17 +78,16 @@ function Body() {
             </tr>
           </thead>
           <tbody>
-            {users.map((user, key) => (
-              user.id = key + 1,
+            {
+            users.map((user, key) => (
               <tr key={key + 1}>
-                <td>{user.id}</td>
+                <td>{key + 1}</td>
                 <td>{user.firstname}</td>
                 <td>{user.lastname}</td>
                 <td>{user.age}</td>
                 <td className="text-center"><button
                   className="btn btn-warning btn-sm me-2"
-                  onClick={() => handleEdit(user.id)}
-                >
+                  onClick={() => handleEdit(user.id)}>
                   Edit
                 </button>
                   <button
@@ -186,7 +97,8 @@ function Body() {
                     Delete
                   </button></td>
               </tr>
-            ))}
+            ))
+            }
           </tbody>
         </table>
       </div>
