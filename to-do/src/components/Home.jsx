@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { FaEdit, FaTrash, FaCheck, FaPlus } from 'react-icons/fa'; // Import icons
 
-function Home({ tasks, handleDeleteTask, handleToggleComplete }) {
+function Home({ tasks, handleDeleteTask, handleToggleComplete, darkMode, toggleDarkMode }) {
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedPriority, setSelectedPriority] = useState(""); // Track selected priority tab
-  const [darkMode, setDarkMode] = useState(false);
+  const [selectedPriority, setSelectedPriority] = useState("");
 
   // Filter tasks by search term
   const filteredTasks = tasks.filter(task =>
@@ -19,11 +19,9 @@ function Home({ tasks, handleDeleteTask, handleToggleComplete }) {
     ? filteredTasks.filter(task => task.priority === selectedPriority)
     : filteredTasks;
 
-  const toggleDarkMode = () => setDarkMode(!darkMode);
-
   return (
-    <div className={`min-h-screen p-5 ${darkMode ? 'bg-gray-500 text-white' : 'bg-gray-100 text-black'}`}>
-      <div className="mb-4">
+    <div className={`min-h-screen p-6 ${darkMode ? 'bg-gray-800 text-white' : 'bg-gray-100 text-black'}`}>
+      <div className="mb-4 flex justify-between items-center">
         <input
           type="text"
           className={`w-full px-4 py-2 border rounded-md ${darkMode ? 'bg-gray-700 text-white' : 'bg-white text-black'}`}
@@ -53,7 +51,7 @@ function Home({ tasks, handleDeleteTask, handleToggleComplete }) {
           Medium
         </button>
         <button
-          className={`px-4 py-2 ${selectedPriority === "Low" ? 'bg-primary-500' : 'bg-gray-300'} text-white rounded-md`}
+          className={`px-4 py-2 ${selectedPriority === "Low" ? 'bg-green-500' : 'bg-gray-300'} text-white rounded-md`}
           onClick={() => setSelectedPriority("Low")}
         >
           Low
@@ -61,60 +59,62 @@ function Home({ tasks, handleDeleteTask, handleToggleComplete }) {
       </div>
 
       <Link to="/create">
-        <button className={`px-4 py-2 ${darkMode ? 'bg-blue-500' : 'bg-blue-600'} text-white rounded-md`}>
-          Add New Task
+        <button className={`px-4 py-2 ${darkMode ? 'bg-blue-500' : 'bg-blue-600'} text-white rounded-md flex items-center space-x-2`}>
+          <FaPlus />
+          <span>Add New Task</span>
         </button>
       </Link>
 
-      <div className="mt-4 border rounded-md shadow-md p-5">
+      <div className="mt-4 border rounded-lg shadow-xl p-6 bg-gradient-to-r from-white-50 to-grey-100">
         {priorityFilteredTasks.length === 0 ? (
-          <div>No tasks found. Try adding some tasks or searching.</div>
+          <div className="text-center text-gray-500 font-medium">No tasks found. Try adding some tasks or searching.</div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
             {priorityFilteredTasks.map(task => (
               <motion.div
                 key={task.id}
-                className="p-4 border rounded-md shadow-md hover:shadow-lg transition-shadow duration-300"
+                className="relative p-5 border rounded-lg shadow-lg hover:shadow-2xl transform transition-all duration-300 ease-in-out hover:scale-105"
               >
-                <div className="flex flex-col space-y-2">
-                  <h3 className={`${task.completed ? 'line-through text-gray-500' : ''} text-xl font-semibold`}>
+                {/* Mark Complete Button at the Top-Right */}
+                <button
+                  className={`absolute top-2 right-2 px-4 py-2 text-sm ${task.completed ? 'bg-green-500' : 'bg-gray-300'} text-white rounded-md flex items-center space-x-2 hover:bg-green-600 transition-all`}
+                  onClick={() => handleToggleComplete(task.id)}
+                >
+                  <FaCheck />
+                  <span>{task.completed ? 'Completed' : 'Mark Complete'}</span>
+                </button>
+
+                <div className="flex flex-col space-y-3 mt-10"> {/* Added margin-top to offset the button */}
+                  <h3 className={`text-xl font-semibold ${task.completed ? 'line-through text-gray-400' : 'text-gray-900'}`}>
                     {task.text}
                   </h3>
-                  <p className="text-sm text-gray-600">{task.description}</p>
+                  <p className="text-sm text-gray-700">{task.description}</p>
                   <span
                     className={`font-semibold ${task.priority === 'High'
                       ? 'text-red-500'
                       : task.priority === 'Medium'
                         ? 'text-yellow-500'
-                        : 'text-green-500'
-                      }`}
+                        : 'text-green-500'}`}
                   >
                     {task.priority}
                   </span>
                 </div>
 
-                <div className="flex space-x-2 mt-4">
-                  {/* Complete Toggle */}
-                  <button
-                    className={`px-3 py-1 text-sm ${task.completed ? 'bg-green-500' : 'bg-gray-300'} text-white rounded-md`}
-                    onClick={() => handleToggleComplete(task.id)}
-                  >
-                    {task.completed ? 'Completed' : 'Mark Complete'}
-                  </button>
-
+                <div className="flex flex-wrap space-x-4 mt-6 gap-4 justify-between">
                   {/* Edit Button */}
                   <Link to={`/edit/${task.id}`}>
-                    <button className="px-3 py-1 bg-yellow-500 text-white rounded-md text-sm">
-                      Edit
+                    <button className="px-4 py-2 bg-yellow-500 text-white rounded-md text-sm flex items-center space-x-2 hover:bg-yellow-600 transition-all w-full sm:w-auto">
+                      <FaEdit />
+                      <span>Edit</span>
                     </button>
                   </Link>
 
-                  {/* Delete Button */}
                   <button
                     onClick={() => handleDeleteTask(task.id)}
-                    className="px-3 py-1 bg-red-500 text-white rounded-md text-sm"
+                    className="px-4 py-2 bg-red-500 text-white rounded-md text-sm flex items-center space-x-2 hover:bg-red-600 transition-all w-auto"
                   >
-                    Delete
+                    <FaTrash />
+                    <span>Delete</span>
                   </button>
                 </div>
               </motion.div>
@@ -122,6 +122,8 @@ function Home({ tasks, handleDeleteTask, handleToggleComplete }) {
           </div>
         )}
       </div>
+
+
 
     </div>
   );

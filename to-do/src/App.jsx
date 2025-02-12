@@ -3,11 +3,12 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import NavBar from './components/NavBar';
 import Home from './components/Home';
 import CreateNote from './components/CreateNote';
+import Footer from './components/Footer';
 
 function App() {
   // Initialize tasks state, trying to get tasks from localStorage if available
   const [tasks, setTasks] = useState(() => {
-    const savedTasks = localStorage.getItem("task");
+    const savedTasks = localStorage.getItem("tasks");
     return savedTasks ? JSON.parse(savedTasks) : [];
   });
 
@@ -40,26 +41,35 @@ function App() {
     ));
   };
 
+  const [darkMode, setDarkMode] = useState(false);
+
+  const toggleDarkMode = () => {
+    setDarkMode(!darkMode);
+  };
+
   return (
     <Router>
       <div className="min-h-screen bg-gray-100">
-        <NavBar />
-        <div className="p-5">
+      <NavBar darkMode={darkMode} toggleDarkMode={toggleDarkMode} />
+      <main>
+        <div className={`border-t ${darkMode ? "border-white" : "border-dark"}`}>
           <Routes>
             <Route
               path="/"
-              element={<Home tasks={tasks} handleDeleteTask={handleDeleteTask} handleToggleComplete={handleToggleComplete} />}
+              element={<Home tasks={tasks} handleDeleteTask={handleDeleteTask} handleToggleComplete={handleToggleComplete} darkMode={darkMode} toggleDarkMode={toggleDarkMode}/>}
             />
             <Route
               path="/create"
-              element={<CreateNote handleAddOrEditTask={handleAddOrEditTask} />}
+              element={<CreateNote handleAddOrEditTask={handleAddOrEditTask} darkMode={darkMode} toggleDarkMode={toggleDarkMode} />}
             />
             <Route
               path="/edit/:taskId"
-              element={<CreateNote handleAddOrEditTask={handleAddOrEditTask} tasks={tasks} />}
+              element={<CreateNote handleAddOrEditTask={handleAddOrEditTask} tasks={tasks} darkMode={darkMode} toggleDarkMode={toggleDarkMode}/>}
             />
           </Routes>
         </div>
+        </main>
+        <Footer/>
       </div>
     </Router>
   );
