@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 
-function Home({ tasks }) {
+function Home({ tasks, handleDeleteTask, handleToggleComplete }) {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedPriority, setSelectedPriority] = useState(""); // Track selected priority tab
   const [darkMode, setDarkMode] = useState(false);
@@ -53,7 +53,7 @@ function Home({ tasks }) {
           Medium
         </button>
         <button
-          className={`px-4 py-2 ${selectedPriority === "Low" ? 'bg-green-500' : 'bg-gray-300'} text-white rounded-md`}
+          className={`px-4 py-2 ${selectedPriority === "Low" ? 'bg-primary-500' : 'bg-gray-300'} text-white rounded-md`}
           onClick={() => setSelectedPriority("Low")}
         >
           Low
@@ -66,19 +66,63 @@ function Home({ tasks }) {
         </button>
       </Link>
 
-      <div className="mt-4">
+      <div className="mt-4 border rounded-md shadow-md p-5">
         {priorityFilteredTasks.length === 0 ? (
           <div>No tasks found. Try adding some tasks or searching.</div>
         ) : (
-          priorityFilteredTasks.map(task => (
-            <motion.div key={task.id} className="p-4 border mb-2 rounded-md">
-              <h3>{task.text}</h3>
-              <p>{task.description}</p>
-              <span>{task.priority}</span>
-            </motion.div>
-          ))
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            {priorityFilteredTasks.map(task => (
+              <motion.div
+                key={task.id}
+                className="p-4 border rounded-md shadow-md hover:shadow-lg transition-shadow duration-300"
+              >
+                <div className="flex flex-col space-y-2">
+                  <h3 className={`${task.completed ? 'line-through text-gray-500' : ''} text-xl font-semibold`}>
+                    {task.text}
+                  </h3>
+                  <p className="text-sm text-gray-600">{task.description}</p>
+                  <span
+                    className={`font-semibold ${task.priority === 'High'
+                      ? 'text-red-500'
+                      : task.priority === 'Medium'
+                        ? 'text-yellow-500'
+                        : 'text-green-500'
+                      }`}
+                  >
+                    {task.priority}
+                  </span>
+                </div>
+
+                <div className="flex space-x-2 mt-4">
+                  {/* Complete Toggle */}
+                  <button
+                    className={`px-3 py-1 text-sm ${task.completed ? 'bg-green-500' : 'bg-gray-300'} text-white rounded-md`}
+                    onClick={() => handleToggleComplete(task.id)}
+                  >
+                    {task.completed ? 'Completed' : 'Mark Complete'}
+                  </button>
+
+                  {/* Edit Button */}
+                  <Link to={`/edit/${task.id}`}>
+                    <button className="px-3 py-1 bg-yellow-500 text-white rounded-md text-sm">
+                      Edit
+                    </button>
+                  </Link>
+
+                  {/* Delete Button */}
+                  <button
+                    onClick={() => handleDeleteTask(task.id)}
+                    className="px-3 py-1 bg-red-500 text-white rounded-md text-sm"
+                  >
+                    Delete
+                  </button>
+                </div>
+              </motion.div>
+            ))}
+          </div>
         )}
       </div>
+
     </div>
   );
 }
