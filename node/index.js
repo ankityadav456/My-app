@@ -12,7 +12,6 @@ const users = [
   { id: 2, firstname: 'Jane', lastname: 'Doe', age: 28 },
   { id: 3, firstname: 'mark', lastname: 'mark', age: 30 },
 
-  
 ];
 
 // Simple route for GET request
