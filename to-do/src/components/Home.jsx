@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { FaEdit, FaTrash, FaCheck, FaPlus } from 'react-icons/fa'; // Import icons
+import { FaEdit, FaTrash, FaCheck, FaPlus, FaSearch  } from 'react-icons/fa'; // Import icons
 
 function Home({ tasks, handleDeleteTask, handleToggleComplete, darkMode, toggleDarkMode }) {
   const [searchTerm, setSearchTerm] = useState("");
@@ -21,17 +21,22 @@ function Home({ tasks, handleDeleteTask, handleToggleComplete, darkMode, toggleD
 
   return (
     <div className={`min-h-screen p-6 ${darkMode ? 'bg-gray-800 text-white' : 'bg-gray-100 text-black'}`}>
-      <div className="mb-4 flex justify-between items-center">
-        <input
-          type="text"
-          className={`w-full px-4 py-2 border rounded-md ${darkMode ? 'bg-gray-700 text-white' : 'bg-white text-black'}`}
-          placeholder="Search tasks..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
-      </div>
+        <div className="relative mb-5">
+      {/* Input field */}
+      <input
+        type="text"
+        className={`w-full p-3 pl-10 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${darkMode ? 'bg-gray-700 text-white' : 'bg-white text-black'}`}
+        placeholder="Search tasks..."
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+      />
+      
+      {/* Search Icon */}
+      <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+    </div>
 
-      <div className="flex space-x-4 mb-4">
+      <div className="flex space-x-4 mb-4 justify-between items-center">
+      <div className="space-x-4 mb-4">
         <button
           className={`px-4 py-2 ${selectedPriority === "" ? 'bg-blue-500' : 'bg-gray-300'} text-white rounded-md`}
           onClick={() => setSelectedPriority("")}
@@ -56,14 +61,18 @@ function Home({ tasks, handleDeleteTask, handleToggleComplete, darkMode, toggleD
         >
           Low
         </button>
+        </div>
+        <div>
+        <Link to="/create">
+          <button className={`px-4 py-2 ${darkMode ? 'bg-blue-500' : 'bg-blue-600'} text-white rounded-md flex items-center space-x-2`}>
+            <FaPlus />
+            <span>Add New Task</span>
+          </button>
+        </Link>
+        </div>
       </div>
 
-      <Link to="/create">
-        <button className={`px-4 py-2 ${darkMode ? 'bg-blue-500' : 'bg-blue-600'} text-white rounded-md flex items-center space-x-2`}>
-          <FaPlus />
-          <span>Add New Task</span>
-        </button>
-      </Link>
+
 
       <div className="mt-4 border rounded-lg shadow-xl p-6 bg-gradient-to-r from-white-50 to-grey-100">
         {priorityFilteredTasks.length === 0 ? (
@@ -73,7 +82,7 @@ function Home({ tasks, handleDeleteTask, handleToggleComplete, darkMode, toggleD
             {priorityFilteredTasks.map(task => (
               <motion.div
                 key={task.id}
-                className="relative p-5 border rounded-lg shadow-lg hover:shadow-2xl transform transition-all duration-300 ease-in-out hover:scale-105"
+                className="relative p-5 border rounded-lg shadow-lg hover:shadow-2xl transform transition-all duration-300 ease-in-out hover:scale-105 flex flex-col"
               >
                 {/* Mark Complete Button at the Top-Right */}
                 <button
@@ -84,22 +93,30 @@ function Home({ tasks, handleDeleteTask, handleToggleComplete, darkMode, toggleD
                   <span>{task.completed ? 'Completed' : 'Mark Complete'}</span>
                 </button>
 
-                <div className="flex flex-col space-y-3 mt-10"> {/* Added margin-top to offset the button */}
-                  <h3 className={`text-xl font-semibold ${task.completed ? 'line-through text-gray-400' : 'text-gray-900'}`}>
+                <div className="flex flex-col space-y-3 mt-10 flex-grow">
+                  <h3
+                    className={`text-xl font-semibold ${task.completed ? 'line-through text-gray-400' : 'text-gray-900'}`}
+                  >
                     {task.text}
                   </h3>
-                  <p className="text-sm text-gray-700">{task.description}</p>
+
+                  {/* Responsive description */}
+                  <p className="text-sm sm:text-base text-gray-700 line-clamp-3">{task.description}</p>
+
+                  {/* Responsive priority */}
                   <span
-                    className={`font-semibold ${task.priority === 'High'
-                      ? 'text-red-500'
-                      : task.priority === 'Medium'
-                        ? 'text-yellow-500'
-                        : 'text-green-500'}`}
+                    className={`font-semibold text-sm sm:text-base ${task.priority === 'High'
+                        ? 'text-red-500'
+                        : task.priority === 'Medium'
+                          ? 'text-yellow-500'
+                          : 'text-green-500'
+                      }`}
                   >
                     {task.priority}
                   </span>
                 </div>
 
+                {/* Buttons (always at the bottom) */}
                 <div className="flex flex-wrap space-x-4 mt-6 gap-4 justify-between">
                   {/* Edit Button */}
                   <Link to={`/edit/${task.id}`}>

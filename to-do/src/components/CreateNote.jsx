@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { FaSave, FaArrowLeft } from 'react-icons/fa';
+import axios from 'axios'; // Import axios for API calls
 
 function CreateNote({ handleAddOrEditTask, darkMode }) {
   const { taskId } = useParams();
@@ -14,15 +15,23 @@ function CreateNote({ handleAddOrEditTask, darkMode }) {
   });
   const [formErrors, setFormErrors] = useState({});
 
+  // Fetch task data if taskId exists
   useEffect(() => {
     if (taskId) {
-      const existingTask = JSON.parse(localStorage.getItem('tasks'))?.find(t => t.id === parseInt(taskId));
-      if (existingTask) {
-        setTask(existingTask);
-      }
+      setIsLoading(true);
+      axios.get(`https://lzkd7k-8080.csb.app/tasks/${taskId}`)
+        .then(response => {
+          setTask(response.data);
+          setIsLoading(false);
+        })
+        .catch(error => {
+          console.error('Error fetching task:', error);
+          setIsLoading(false);
+        });
     }
   }, [taskId]);
 
+  // Handle form input change
   const handleChange = (e) => {
     const { name, value } = e.target;
     setTask((prevTask) => ({
@@ -31,6 +40,7 @@ function CreateNote({ handleAddOrEditTask, darkMode }) {
     }));
   };
 
+  // Validate form inputs
   const validateForm = () => {
     const errors = {};
     if (!task.text) errors.text = 'Task title is required';
@@ -40,6 +50,7 @@ function CreateNote({ handleAddOrEditTask, darkMode }) {
     return Object.keys(errors).length === 0;
   };
 
+  // Handle form submission
   const handleSubmit = (e) => {
     e.preventDefault();
     if (validateForm()) {
@@ -50,6 +61,7 @@ function CreateNote({ handleAddOrEditTask, darkMode }) {
     }
   };
 
+  // Handle back button click
   const handleBackButton = () => {
     if (task.text || task.description || task.priority || task.category) {
       const confirmLeave = window.confirm('You have unsaved changes. Are you sure you want to leave?');
@@ -61,7 +73,7 @@ function CreateNote({ handleAddOrEditTask, darkMode }) {
 
   return (
     <div className={`min-h-screen p-5 flex justify-center items-center ${darkMode ? 'bg-gray-900 text-white' : 'bg-gray-50 text-black'}`}>
-      <div className={`max-w-4xl w-full p-8 bg-white rounded-lg shadow-lg   ${darkMode ? 'dark:bg-gray-800 dark:text-white' : 'bg-gray-100 dark:text-black'}`}>
+      <div className={`max-w-4xl w-full p-8 bg-white rounded-lg shadow-lg ${darkMode ? 'dark:bg-gray-800 dark:text-white' : 'bg-gray-100 dark:text-black'}`}>
         <h2 className="text-3xl mb-6 text-center font-semibold">
           {taskId ? 'Edit Task' : 'Create New Task'}
         </h2>

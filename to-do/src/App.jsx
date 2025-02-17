@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import NavBar from './components/NavBar';
 import Home from './components/Home';
@@ -12,23 +13,50 @@ function App() {
     return savedTasks ? JSON.parse(savedTasks) : [];
   });
 
-  // Sync tasks with localStorage
+  // Loading state to show spinner while fetching tasks
+  const [loading, setLoading] = useState(true);
+
+  // UseEffect with async/await for fetching tasks
   useEffect(() => {
-    if (tasks.length > 0) {
-      localStorage.setItem('tasks', JSON.stringify(tasks));
-    }
-  }, [tasks]);
+    const fetchTasks = async () => {
+      try {
+        setLoading(true); 
+        const response = await axios.get('https://lzkd7k-8080.csb.app/tasks'); // Replace with your backend URL
+        setTasks(response.data);  // Set tasks from backend
+        setLoading(false);         // Hide loader when data is fetched
+      } catch (error) {
+        console.error('Error fetching tasks:', error);
+        setLoading(false);         // Hide loader in case of error
+      }
+    };
+
+    fetchTasks(); // Call the async function to fetch tasks
+  }, []);
 
   // Handle adding or editing a task
-  const handleAddOrEditTask = (task) => {
-    if (task.id) {
-      // Edit task
-      setTasks(tasks.map(t => t.id === task.id ? task : t));
-    } else {
-      // Add new task
-      setTasks([...tasks, { ...task, id: Date.now(), completed: false }]);
+  // Handle adding or editing a task
+  const handleAddOrEditTask = async (task) => {
+    try {
+      if (task.id) {
+        // Edit task
+        const response = await axios.put(`https://lzkd7k-8080.csb.app/tasks/${task.id}`, task);
+        setTasks(tasks.map(t => (t.id === task.id ? task : t))); // Update task
+      } else {
+        // Add new task
+        const response = await axios.post('https://lzkd7k-8080.csb.app/tasks', task);
+        setTasks([...tasks, { ...task, id: Date.now(), completed: false }]); // Add task
+      }
+    } catch (error) {
+      console.error('Error adding or editing task:', error);
+      if (error.response) {
+        console.error('Response error:', error.response.data); // If response is available
+      } else {
+        console.error('Network error or no response received');
+      }
     }
   };
+  
+
 
   // Handle task deletion
   const handleDeleteTask = (taskId) => {
@@ -54,6 +82,13 @@ function App() {
       <div className={`min-h-screen ${darkMode ? 'bg-gray-800' : 'bg-gray-100'} transition-all`}>
         {/* Navbar */}
         <NavBar darkMode={darkMode} toggleDarkMode={toggleDarkMode} />
+
+        {/* Loader (Display while fetching tasks) */}
+        {loading && (
+          <div className="fixed inset-0 bg-opacity-50 bg-gray-700 flex items-center justify-center z-50">
+            <div className="spinner w-16 h-16 border-t-4 border-blue-500 border-solid rounded-full animate-spin"></div>
+          </div>
+        )}
 
         <main className={`border-t my-10 py-6  ${darkMode ? 'border-white' : 'border-gray-400'}`}>
           <Routes>
